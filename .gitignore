@@ -1,0 +1,22 @@
+# .gitignore
+**/.terraform/**   */
+.terraform/** 
+
+# Crash log files
+crash.log
+
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include tfplan files in .gitignore as they can be used to see the full plan to apply
+# and might contain sensitive data as well.
+*.tfplan
+
+# Include CLI configuration files
+.terraformrc
+terraform.rc
