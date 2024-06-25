@@ -1,6 +1,9 @@
+primary_region = "us-west-2"
+secondary_region = "us-east-2"
+
 bucket_names = {
-  dev-bucket1 = "dev-bucket1-johanromero"
-  dev-bucket2 = "dev-bucket2-johanromero"
+  dev-bucket1 = "dev-bucket1-johanromero-unique"
+  dev-bucket2 = "dev-bucket2-johanromero-unique"
 }
 
 lifecycle_rules = {
@@ -30,3 +33,4 @@ bucket_websites = {
     error_document = "error.html"
   }
 }
+

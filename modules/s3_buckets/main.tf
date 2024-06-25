@@ -1,12 +1,29 @@
 resource "aws_s3_bucket" "this" {
   bucket = var.bucket_names
+
+  lifecycle {
+    create_before_destroy = true
+    prevent_destroy       = true
+    ignore_changes        = [
+      bucket,
+      acl,
+      tags,
+    ]
+  }
 }
 
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.bucket
 
   versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Suspended"
+    status = "Enabled"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      versioning_configuration,
+    ]
   }
 }
 
@@ -25,6 +42,14 @@ resource "aws_s3_bucket_website_configuration" "this" {
     content {
       key = error_document.value.error_document
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      index_document,
+      error_document,
+    ]
   }
 }
 
@@ -47,6 +72,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
     }
   }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      rule,
+    ]
+  }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
@@ -56,6 +88,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      rule,
+    ]
   }
 }
 
@@ -71,23 +110,36 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     destination {
       bucket        = aws_s3_bucket.replica.arn
       storage_class = "STANDARD"
+      replica_kms_key_id = var.replica_kms_key_id
     }
 
     filter {
       prefix = ""
     }
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
-      }
+    delete_marker_replication {
+      status = "Enabled"
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
 resource "aws_s3_bucket" "replica" {
   provider = aws.secondary
   bucket   = "${var.bucket_names}-dr"
+
+  lifecycle {
+    create_before_destroy = true
+    prevent_destroy       = true
+    ignore_changes        = [
+      bucket,
+      acl,
+      tags,
+    ]
+  }
 }
 
 resource "aws_s3_bucket_versioning" "replica" {
@@ -95,7 +147,14 @@ resource "aws_s3_bucket_versioning" "replica" {
   bucket = aws_s3_bucket.replica.bucket
 
   versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Suspended"
+    status = "Enabled"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      versioning_configuration,
+    ]
   }
 }
 
@@ -115,6 +174,14 @@ resource "aws_s3_bucket_website_configuration" "replica" {
     content {
       key = error_document.value.error_document
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      index_document,
+      error_document,
+    ]
   }
 }
 
@@ -138,6 +205,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "replica" {
       }
     }
   }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      rule,
+    ]
+  }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "replica" {
@@ -148,5 +222,12 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replica" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      rule,
+    ]
   }
 }

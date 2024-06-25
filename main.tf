@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 3.0.0"  # Ajusta la versión según tus necesidades
-    }
-  }
-}
-
 provider "aws" {
   region = var.primary_region
 }
@@ -17,7 +8,7 @@ provider "aws" {
 }
 
 resource "aws_iam_role" "replication_role" {
-  name = "replication_role"
+  name = "replication_role_unique"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -39,7 +30,10 @@ resource "aws_iam_role" "replication_role" {
       Statement = [
         {
           Effect = "Allow"
-          Action = "s3:ReplicateObject"
+          Action = [
+            "s3:ReplicateObject",
+            "s3:ReplicateDelete"
+          ]
           Resource = "*"
         }
       ]
@@ -52,7 +46,7 @@ module "s3_buckets" {
   for_each = var.bucket_names
 
   providers = {
-    aws = aws
+    aws = aws,
     aws.secondary = aws.secondary
   }
 

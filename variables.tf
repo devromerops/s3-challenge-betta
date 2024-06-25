@@ -1,23 +1,21 @@
 variable "primary_region" {
   description = "Primary AWS region"
   type        = string
-  default     = "us-west-2"
 }
 
 variable "secondary_region" {
   description = "Secondary AWS region"
   type        = string
-  default     = "us-east-2"
 }
 
 variable "bucket_names" {
-  description = "Names of the S3 buckets"
+  description = "Map of bucket names"
   type        = map(string)
 }
 
 variable "lifecycle_rules" {
   description = "Lifecycle rules for S3 buckets"
-  type = map(list(object({
+  type        = map(list(object({
     id              = string
     enabled         = bool
     transition_days = number
@@ -27,10 +25,10 @@ variable "lifecycle_rules" {
 }
 
 variable "bucket_websites" {
-  description = "Configuration for S3 bucket websites"
+  description = "Website configurations for S3 buckets"
   type        = map(object({
     index_document = string
     error_document = string
   }))
-  default = {}  # Valor predeterminado vacío
+  default = null
 }
